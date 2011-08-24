@@ -24,7 +24,6 @@ void Object::draw()
     glRotatef(_rotz,0,0,1);
 }
 
-
 void Camera::draw()
 {
 }

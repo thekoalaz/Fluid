@@ -29,11 +29,6 @@ void Manager::init(int argc, char* argv[])
 void Manager::drawElements()
 {
     glutMainLoop();
-    /*for(std::vector<Window *>::iterator window = _windows.begin() ;
-        window < _windows.end() ; window++)
-    {
-        (*window)->draw();
-    }*/
 }
 
 Window & Manager::createWindow(int width, int height)
@@ -150,16 +145,6 @@ void Panel::draw()
         
         _world->draw();
 
-        /* XY Grid */
-        glBegin(GL_LINES);
-	    for(int i=-5;i<=5;++i) {
-		    glVertex3f(i,-5, -5);
-		    glVertex3f(i,5, -5);
-
-		    glVertex3f(5,i, -5);
-		    glVertex3f(-5,i, -5);
-	    }
-	    glEnd();
         glPopMatrix();
 
     }
