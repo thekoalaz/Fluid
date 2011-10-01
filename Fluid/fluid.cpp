@@ -12,8 +12,13 @@ int main(int argc, char* argv[])
     MANAGER.init(argc, argv);
     GlutUI::Window & mainWindow = MANAGER.createWindow(640,480, "TestWindow");
     GlutUI::Panel & mainPanel = MANAGER.createPanel(mainWindow, 640,480, "TestPanel");
+    
+    
     Scene::World world = Scene::createWorld();
     mainPanel.setWorld(&world);
+
+    GlutUI::Button & testButton = MANAGER.createButton(mainPanel, 40, 20, 10, 10, "TestButton");
+
 
     Scene::Grid * gridXZ = new Scene::Grid();
     world.addObject(gridXZ);
@@ -33,7 +38,6 @@ int main(int argc, char* argv[])
     mainPanel.setCamera(new Scene::Camera());
     GlutUI::Controls::Mouse(mainPanel.getCamera());
 
-    glEnable(GL_DEPTH_TEST);
     MANAGER.drawElements();
 	return 0;
 }

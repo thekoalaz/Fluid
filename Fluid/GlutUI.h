@@ -13,6 +13,7 @@ namespace GlutUI
 #define DEFAULT_YPOS 10
 #define DEFAULT_WINDOWNAME "A Window"
 
+//TODO Come up with a relative coordinate scheme
 
 /** Global variables **/
 
@@ -45,6 +46,8 @@ public:
 
     Panel & createPanel(Window & window, int width, int height, std::string name);
     Panel & createPanel(Window & window, int width, int height, int xpos, int ypos, std::string name);
+
+    Button & createButton(Panel & panel, int width, int height, int xpos, int ypos, std::string name);
 
 private:
     std::vector<Window *> _windows;
@@ -109,15 +112,19 @@ public:
     void addChildren(UIElement * elem) { _children.push_back(elem); }
 
     /* Single line functions */
-    int nextId() { return NEXTID++; }
+    unsigned int nextId() { return NEXTID++; }
 
 private:
     int _xpos, _ypos,
         _width, _height;
     std::string _name;
-    int _UIElemId;
-    static int NEXTID;
+    bool _ortho;
+    double _opacity;
+    unsigned int _UIElemId;
     std::vector<UIElement *> _children;
+
+    
+    static int NEXTID;
 };
 
 
@@ -140,6 +147,8 @@ public:
 private:
     static void displayFuncWrapper();
     static void reshapeFuncWrapper(int w, int h);
+
+    bool _init;
 };
 
 
@@ -155,7 +164,7 @@ public:
     Panel(int width, int height, std::string name) : UIElement(width, height, name), _persp(false)
         { setName("Panel " + getId()); }
     Panel(int width, int height, int xpos, int ypos, std::string name) : UIElement(width, height, xpos, ypos, name), _persp(false)
-        { setName("Panel " + getId()); }
+        { }
     void draw();
 
     void setWorld(Scene::World * world) { _world = world; }
@@ -170,19 +179,26 @@ private:
     Scene::Camera * _camera;
 };
 
-
 /** Button Class **/
 /** Abstract class that defines the basic properties of an UI element
  *
 **/
+//TODO PRIO: Buttons, and button selection
 class Button : public UIElement
 {
 public:
-    Button(int width, int height);
-    Button(int width, int height, void *callback(void));
+    Button(int width, int height) : UIElement(width, height), _persp(false)
+    { setName("Button " + getId()); }
+    Button(int width, int height, int xpos, int ypos) : UIElement(width, height), _persp(false)
+    { setName("Button " + getId()); }
+    Button(int width, int height, int xpos, int ypos, std::string name) : UIElement(width, height, name), _persp(false)
+    {  }
+    Button(int width, int height, void * callback(void));
     void draw();
 
 private:
+    void * _callback;
+    bool _persp;
 };
 
 
@@ -191,10 +207,13 @@ namespace Controls
     class Mouse
     {
     public:
+        //TODO replace with actual camera:
         Mouse(Scene::Camera * camera) : _camera(camera) { init(); }
         void init();
         void mouse(int button, int state, int x, int y);
         void motion(int x, int y);
+        //void mouseWheel(int, int, int, int);
+        //TODO Mousewheel!
 
     private:
         //TODO replace with actual camera:
@@ -207,7 +226,21 @@ namespace Controls
 
     class Keyboard
     {
+    public:
+        Keyboard() { init(); }
+        void init();
+        void keyDown(unsigned char key, int x, int y);
+        void keyUp(unsigned char key, int x, int y);
+        void specialDown(unsigned char key, int x, int y);
+        void specialUp(unsigned char key, int x, int y);
+
+    private:
+        static void keyboardFuncWrapper(unsigned char key, int x, int y);
+        static void keyboardUpFuncWrapper(unsigned char key, int x, int y);
+        static void keyboardSpecialFuncWrapper(unsigned char key, int x, int y);
+        static void keyboardSpecialUpFuncWrapper(unsigned char key, int x, int y);
     };
 }
 
 };
+

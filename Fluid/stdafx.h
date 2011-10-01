@@ -17,3 +17,5 @@
 #include <string>
 
 #include <GL/glut.h>
+
+#include "armadillo"

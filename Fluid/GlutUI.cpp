@@ -22,8 +22,10 @@ Controls::Mouse * mainMouse;
 
 void Manager::init(int argc, char* argv[])
 {
-     glutInit(&argc, argv);
-     glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH );
+    glutInit(&argc, argv);
+    glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH );
+     
+    glEnable(GL_DEPTH_TEST);
 }
 
 void Manager::drawElements()
@@ -63,6 +65,15 @@ Panel & Manager::createPanel(Window & window, int width, int height, int xpos, i
     return *new_panel;
 }
 
+Button & Manager::createButton(Panel & panel, int width, int height, int xpos, int ypos, std::string name)
+{
+    Button * new_button = new Button(width, height, xpos, ypos, name);
+    panel.addChildren(new_button);
+    _elements.push_back(new_button);
+
+    return *new_button;
+}
+
 /** UIElement Class **/
 /** Abstract class that defines the basic properties of an UI element
  *
@@ -80,7 +91,10 @@ void UIElement::init()
 
 void Window::init()
 {
+    _init = false;
     mainWindow = this;
+    glutInitWindowSize(getWidth(), getHeight());
+    glutInitWindowPosition(getXPos(), getYPos());
     glutCreateWindow(getName().c_str());
     glutDisplayFunc(Window::displayFuncWrapper);
 	glutReshapeFunc(Window::reshapeFuncWrapper);
@@ -89,7 +103,6 @@ void Window::init()
 void Window::displayFuncWrapper()
 {
     mainWindow->draw();
-
 }
 
 void Window::reshapeFuncWrapper(int w, int h)
@@ -99,10 +112,11 @@ void Window::reshapeFuncWrapper(int w, int h)
 
 void Window::draw()
 {    
-   	glutInitWindowSize(getWidth(), getHeight());
-	glutInitWindowPosition(getXPos(), getYPos());
-    
+    //std::cout << "Creating Window: " << getWidth() << " by " << getHeight() << "." << std::endl;
+
+    glClearColor(0.2f, 0.2f, 0.2f, 0.0f); 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
     for(std::vector<UIElement *>::const_iterator child = getChildren().begin() ;
         child < getChildren().end() ; child++)
     {
@@ -114,10 +128,13 @@ void Window::draw()
 
 void Window::reshape(int w, int h)
 {
+    std::cout << "New size: " << w << " by " << h << std::endl;
 	// prevent divide by 0 error when minimised
 	if(w==0) 
 		h = 1;
 
+    setWidth(w);
+    setHeight(h);
 	glViewport(0,0,w,h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -137,17 +154,35 @@ void Panel::draw()
     if(_world != NULL)
     {
         glPushMatrix();
+        glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glTranslatef(0, 0, -_camera->getTz());
-	    glTranslatef(_camera->getTx(),_camera->getTy(),0);
-	    glRotatef(_camera->getRotx(),1,0,0);
-	    glRotatef(_camera->getRoty(),0,1,0);
+        gluPerspective(45,(float)getWidth()/getHeight(),0.1,100);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glTranslated(0., 0., -_camera->getTz());
+	    glTranslated(_camera->getTx(),_camera->getTy(),0.);
+	    glRotated(_camera->getRotx(),1,0,0);
+	    glRotated(_camera->getRoty(),0,1,0);
         
         _world->draw();
 
         glPopMatrix();
-
     }
+    
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, getWidth(), getHeight(), 0, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+
+    for(std::vector<UIElement *>::const_iterator child = getChildren().begin() ;
+        child < getChildren().end() ; child++)
+    {
+        (*child)->draw();
+    }
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW); 
 }
 
 /** Button Class **/
@@ -157,6 +192,17 @@ void Panel::draw()
 
 void Button::draw()
 {
+    //glPushMatrix();
+    glColor4d(1.0, 1.0, 1.0, 0.2);
+    GlutDraw::drawRectangle(getXPos(), getYPos(), getWidth(), getHeight());
+    //
+    //glColor4d(1.0, 1.0, 1.0, 0.2);
+    //glBegin(GL_QUADS);
+    //    glVertex2d(getXPos(), getYPos());
+    //    glVertex2d(getXPos() + getWidth(), getYPos());
+    //    glVertex2d(getXPos() + getWidth(), getYPos() + getHeight());
+    //    glVertex2d(getXPos(), getYPos() + getHeight());
+    //glEnd();
 }
 
 void Controls::Mouse::init()
@@ -164,6 +210,7 @@ void Controls::Mouse::init()
     mainMouse = this;
     glutMouseFunc(Controls::Mouse::mouseFuncWrapper);
     glutMotionFunc(Controls::Mouse::motionFuncWrapper);
+    //glutMouseWheelFunc(mouseWheel);
 }
 
 void Controls::Mouse::mouse(int button, int state, int x, int y)
@@ -227,3 +274,5 @@ void Controls::Mouse::motionFuncWrapper(int x, int y)
 {
     mainMouse->motion(x, y);
 }
+
+//TODO Keyboard functions

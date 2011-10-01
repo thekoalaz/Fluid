@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "GlutDraw.h"
 
 namespace Scene
 {

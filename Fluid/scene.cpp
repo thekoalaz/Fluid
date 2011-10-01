@@ -1,7 +1,4 @@
-#include "stdafx.h"
-
 #include "scene.h"
-#include "GlutDraw.h"
 
 using namespace Scene;
 /** Global variables **/
@@ -18,10 +15,10 @@ void World::draw()
 
 void Object::draw()
 {
-	glTranslatef(_tx, _ty, _tz);
-	glRotatef(_rotx,1,0,0);
-	glRotatef(_roty,0,1,0);
-    glRotatef(_rotz,0,0,1);
+	glTranslated(_tx, _ty, _tz);
+	glRotated(_rotx,1,0,0);
+	glRotated(_roty,0,1,0);
+    glRotated(_rotz,0,0,1);
 }
 
 void Camera::draw()
