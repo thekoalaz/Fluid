@@ -12,7 +12,7 @@ void advectForwardEuler(Cells<T> & data, Cells<arma::vec> & velocity, double tim
     for(int k=0; j<data->_n_z; k++)
     {
         Coordinate coord = Coordinate(i,j,k);
-        data(advect
+        //data(advect
     }
     }
     }

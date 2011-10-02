@@ -8,12 +8,16 @@ GlutUI::Manager MANAGER;
 
 int main(int argc, char* argv[])
 {
-    std::cout << "Hello World!" << std::endl;
+
+;
     MANAGER.init(argc, argv);
+
     GlutUI::Window & mainWindow = MANAGER.createWindow(640,480, "TestWindow");
     GlutUI::Panel & mainPanel = MANAGER.createPanel(mainWindow, 640,480, "TestPanel");
-    
-    
+    std::cout << std::string((char *) glGetString(GL_VENDOR)) << std::endl;
+    std::cout << std::string((char *) glGetString(GL_RENDERER)) << std::endl;
+    std::cout << "OpenGL " << std::string((char *) glGetString(GL_VERSION)) << std::endl;
+    std::cout << "====================================================" << std::endl;
     Scene::World world = Scene::createWorld();
     mainPanel.setWorld(&world);
 
